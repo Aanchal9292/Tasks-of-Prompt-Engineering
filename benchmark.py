@@ -1,37 +1,100 @@
 import whisper
 import time
+import json
+import wave
 from jiwer import wer
+from vosk import Model, KaldiRecognizer
 
-# Load Whisper model
-model = whisper.load_model("base")
+# ==========================
+# CONFIG
+# ==========================
 
-# Ground truth text
-ground_truth = "hello my name is aanchal, how are you?"
+AUDIO_FILE = "audio/sample1.wav"
+GROUND_TRUTH = "hello my name is aanchal, how are you?"
 
-# Start timer
+# ==========================
+# WHISPER
+# ==========================
+
+print("Loading Whisper...")
+whisper_model = whisper.load_model("base")
+
+start = time.time()
+whisper_result = whisper_model.transcribe(AUDIO_FILE)
+whisper_latency = (time.time() - start) * 1000
+
+whisper_text = whisper_result["text"]
+whisper_wer = wer(GROUND_TRUTH, whisper_text)
+
+# ==========================
+# VOSK
+# ==========================
+
+print("Loading Vosk...")
+vosk_model = Model("vosk-model-small-en-us-0.15")
+
+wf = wave.open(AUDIO_FILE, "rb")
+recognizer = KaldiRecognizer(vosk_model, wf.getframerate())
+
 start = time.time()
 
-# Transcribe audio
-result = model.transcribe("audio/sample1.wav")
+while True:
+    data = wf.readframes(4000)
 
-# End timer
-end = time.time()
+    if len(data) == 0:
+        break
 
-# Calculate latency
-latency = (end - start) * 1000
+    recognizer.AcceptWaveform(data)
 
-# Predicted text
-prediction = result["text"]
+vosk_result = json.loads(recognizer.FinalResult())
 
-# Calculate WER
-error = wer(ground_truth, prediction)
+vosk_latency = (time.time() - start) * 1000
 
-# Final output
-output = {
+vosk_text = vosk_result.get("text", "")
+vosk_wer = wer(GROUND_TRUTH, vosk_text)
+
+# ==========================
+# RESULTS
+# ==========================
+
+print("\n===== BENCHMARK RESULTS =====\n")
+
+print({
     "model": "whisper",
-    "transcript": prediction,
-    "wer": round(error, 3),
-    "latency_ms": round(latency, 2)
-}
+    "transcript": whisper_text,
+    "wer": round(whisper_wer, 3),
+    "latency_ms": round(whisper_latency, 2)
+})
 
-print(output)
+print()
+
+print({
+    "model": "vosk",
+    "transcript": vosk_text,
+    "wer": round(vosk_wer, 3),
+    "latency_ms": round(vosk_latency, 2)
+})
+
+
+import csv
+
+with open("report.csv", "w", newline="") as f:
+    writer = csv.writer(f)
+
+    writer.writerow(["Model", "Transcript", "WER", "Latency(ms)"])
+
+    writer.writerow([
+        "Whisper",
+        whisper_text,
+        round(whisper_wer, 3),
+        round(whisper_latency, 2)
+    ])
+
+    writer.writerow([
+        "Vosk",
+        vosk_text,
+        round(vosk_wer, 3),
+        round(vosk_latency, 2)
+    ])
+
+print("\nreport.csv generated successfully!")
