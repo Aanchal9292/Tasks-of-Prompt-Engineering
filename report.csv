@@ -1,0 +1,3 @@
+Model,Transcript,WER,Latency(ms)
+Whisper," Hello, my name is Anshun, how are you?",0.25,3314.58
+Vosk,one more snow than whole old,1.0,3013.51
