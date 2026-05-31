@@ -74,27 +74,3 @@ print({
     "wer": round(vosk_wer, 3),
     "latency_ms": round(vosk_latency, 2)
 })
-
-
-import csv
-
-with open("report.csv", "w", newline="") as f:
-    writer = csv.writer(f)
-
-    writer.writerow(["Model", "Transcript", "WER", "Latency(ms)"])
-
-    writer.writerow([
-        "Whisper",
-        whisper_text,
-        round(whisper_wer, 3),
-        round(whisper_latency, 2)
-    ])
-
-    writer.writerow([
-        "Vosk",
-        vosk_text,
-        round(vosk_wer, 3),
-        round(vosk_latency, 2)
-    ])
-
-print("\nreport.csv generated successfully!")

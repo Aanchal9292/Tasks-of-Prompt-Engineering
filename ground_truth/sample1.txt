@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 GROUND_TRUTH = "hello my name is aanchal, how are you?"
+=======
+hello my name is aanchal, how are you?
+>>>>>>> a8f236ba4f0d3648250ea7f5547b514a5732615f
