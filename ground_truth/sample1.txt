@@ -1,1 +1,1 @@
-hello my name is aanchal, how are you?
+GROUND_TRUTH = "hello my name is aanchal, how are you?"
