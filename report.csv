@@ -1,9 +1,22 @@
-<<<<<<< HEAD
-Model,Transcript,WER,Latency(ms)
-Whisper," Hello, my name is Anshun, how are you?",0.25,3314.58
-Vosk,one more snow than whole old,1.0,3013.51
-=======
-Model,Transcript,WER,Latency(ms)
-Whisper," Hello, my name is Anshun, how are you?",0.25,3314.58
-Vosk,one more snow than whole old,1.0,3013.51
->>>>>>> a8f236ba4f0d3648250ea7f5547b514a5732615f
+import csv
+
+with open("report.csv", "w", newline="") as f:
+    writer = csv.writer(f)
+
+    writer.writerow(["Model", "Transcript", "WER", "Latency(ms)"])
+
+    writer.writerow([
+        "Whisper",
+        whisper_text,
+        round(whisper_wer, 3),
+        round(whisper_latency, 2)
+    ])
+
+    writer.writerow([
+        "Vosk",
+        vosk_text,
+        round(vosk_wer, 3),
+        round(vosk_latency, 2)
+    ])
+
+print("\nreport.csv generated successfully!")
